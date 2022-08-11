@@ -41,7 +41,7 @@ Write-Output "[INFO] Data gathered. Records: $($studentDataTable.count)"
 
 ## Handle staff first
 Write-Output "[INFO] Processing faculty and staff records"
-Foreach ($user in $facstaffDataTable[6]){
+Foreach ($user in $facstaffDataTable[0..99]){
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail
         if ($ADUser -eq $null){
