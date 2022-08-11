@@ -41,15 +41,33 @@ Write-Output "[INFO] Data gathered. Records: $($studentDataTable.count)"
 
 ## Handle staff first
 Write-Output "[INFO] Processing faculty and staff records"
-Foreach ($user in $facstaffDataTable[100..199]){
+Foreach ($user in $facstaffDataTable){
     $ADUser = $null
+    $datahubCheck = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail).tolower()
-        if ($ADUser -eq $null){
-            Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
+    if ($ADUser -eq $null){
+        Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
+    }
+    if ($ADUser -ne $null){
+        Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
+        ## Check to see if they have already been added to Datahub
+        $datahubCheck = New-Object System.Data.DataTable
+        $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.datahubURI);database=$($vault.datahubDatabase);trusted_connection=false;User ID=$($vault.datahubUsername);Password=$($vault.datahubPassword)"
+        $sqlQuery = "SELECT [id]
+                            ,[unique_identifier]
+                    FROM [BroadColor].[raw].[eligibility] where [unique_identifier] like '$($aduser)%'"
+        $sqlConnection.open()
+        $sqlCommand = $sqlConnection.CreateCommand()
+        $sqlCommand.CommandText = $sqlQuery
+        $sqlReader = $sqlCommand.ExecuteReader()
+        $datahubCheck.Load($sqlReader)
+        $sqlConnection.close()
+        $datahubCheck = @($datahubCheck)
+        if ($datahubCheck.unique_identifier.trim() -like $aduser){
+            Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
         }
-        if ($ADUser -ne $null){
-            Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
+        If ($datahubCheck.unique_identifier.trim() -notlike $aduser){
             ## Check to see if they have already been added to color
             Write-Output "[INFO] Checking to see if they are marked eligible in Color"
             $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
@@ -125,8 +143,8 @@ Foreach ($user in $facstaffDataTable[100..199]){
                 $sqlCMDStatus = $sqlCommand.ExecuteNonQuery()
                 $sqlConnection.close()
             }
-            
         }
+    }
 }
 Write-Output "[INFO] faculty and staff records complete"
 
@@ -136,11 +154,28 @@ Foreach ($user in $studentDataTable[2]){
     $ADUser = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail).tolower()
-        if ($ADUser -eq $null){
-            Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
+    if ($ADUser -eq $null){
+        Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
+    }
+    if ($ADUser -ne $null){
+        Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
+        ## Check to see if they have already been added to Datahub
+        $datahubCheck = New-Object System.Data.DataTable
+        $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.datahubURI);database=$($vault.datahubDatabase);trusted_connection=false;User ID=$($vault.datahubUsername);Password=$($vault.datahubPassword)"
+        $sqlQuery = "SELECT [id]
+                            ,[unique_identifier]
+                    FROM [BroadColor].[raw].[eligibility] where [unique_identifier] like '$($aduser)%'"
+        $sqlConnection.open()
+        $sqlCommand = $sqlConnection.CreateCommand()
+        $sqlCommand.CommandText = $sqlQuery
+        $sqlReader = $sqlCommand.ExecuteReader()
+        $datahubCheck.Load($sqlReader)
+        $sqlConnection.close()
+        $datahubCheck = @($datahubCheck)
+        if ($datahubCheck.unique_identifier.trim() -like $aduser){
+            Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
         }
-        if ($ADUser -ne $null){
-            Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
+        If ($datahubCheck.unique_identifier.trim() -notlike $aduser){
             ## Check to see if they have already been added to color
             Write-Output "[INFO] Checking to see if they are marked eligible in Color"
             $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
@@ -216,7 +251,7 @@ Foreach ($user in $studentDataTable[2]){
                 $sqlCMDStatus = $sqlCommand.ExecuteNonQuery()
                 $sqlConnection.close()
             }
-            
         }
+    }
 }
 Write-Output "[INFO] student records complete"
