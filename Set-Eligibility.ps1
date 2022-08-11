@@ -103,7 +103,7 @@ Foreach ($user in $facstaffDataTable[0..99]){
                 $SqlCommand.Parameters["@unique_identifier"].Value = $colorEligibilityCheck.results.unique_identifier
                 $SqlCommand.Parameters["@population"].Value = $colorEligibilityCheck.results.population
                 $SqlCommand.Parameters["@external_id"].Value = $colorEligibilityCheck.results.external_id
-                $SqlCommand.Parameters["@created_at"].Value = (Get-Date -Format "yyyy-MM-dd hh:mm:ss")
+                $SqlCommand.Parameters["@created_at"].Value = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
                 $sqlQuery = "
                 BEGIN TRAN
                     IF EXISTS (SELECT [id],[unique_identifier],[population],[external_id],[created_at] FROM [$($vault.datahubDatabase)].[raw].[eligibility] WHERE [id] = @id) 
@@ -194,7 +194,7 @@ Foreach ($user in $studentDataTable[2]){
                 $SqlCommand.Parameters["@unique_identifier"].Value = $colorEligibilityCheck.results.unique_identifier
                 $SqlCommand.Parameters["@population"].Value = $colorEligibilityCheck.results.population
                 $SqlCommand.Parameters["@external_id"].Value = $colorEligibilityCheck.results.external_id
-                $SqlCommand.Parameters["@created_at"].Value = (Get-Date -Format "yyyy-MM-dd hh:mm:ss")
+                $SqlCommand.Parameters["@created_at"].Value = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
                 $sqlQuery = "
                 BEGIN TRAN
                     IF EXISTS (SELECT [id],[unique_identifier],[population],[external_id],[created_at] FROM [$($vault.datahubDatabase)].[raw].[eligibility] WHERE [id] = @id) 
