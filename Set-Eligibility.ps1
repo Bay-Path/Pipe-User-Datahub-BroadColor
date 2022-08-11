@@ -1,5 +1,4 @@
-## Stage 1: Get Credentials stored in vault
-$env:vaultToken = 's.YK27Lm5JOFdP4VRwcr1iG1y3'
+## Stage 1: Get Credentials stored in vault test
 $vaultHeaders = @{}
 $vaultHeaders.Add('Authorization','Bearer '+ $env:vaultToken)
 $vaultHeaders.Add('Content-Type', 'application/json')
