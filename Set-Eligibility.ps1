@@ -50,7 +50,7 @@ Foreach ($user in $facstaffDataTable){
         Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
     }
     if ($ADUser -ne $null){
-        Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
+        # Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
         ## Check to see if they have already been added to Datahub
         $datahubCheck = New-Object System.Data.DataTable
         $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.datahubURI);database=$($vault.datahubDatabase);trusted_connection=false;User ID=$($vault.datahubUsername);Password=$($vault.datahubPassword)"
@@ -65,16 +65,16 @@ Foreach ($user in $facstaffDataTable){
         $sqlConnection.close()
         $datahubCheck = @($datahubCheck)
         if ($datahubCheck.PSObject.BaseObject.id -ne $null){
-            Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
+            #Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
         }
         If ($datahubCheck.PSObject.BaseObject.id -eq $null){
             ## Check to see if they have already been added to color
-            Write-Output "[INFO] Checking to see if they are marked eligible in Color"
+            # Write-Output "[INFO] Checking to see if they are marked eligible in Color"
             $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
             $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
             ## Are already in Color
             If ($colorEligibilityCheck.results.id.length -ge 1) {
-                Write-Output "[INFO] $($ADUser) is marked eligible in Color"
+                # Write-Output "[INFO] $($ADUser) is marked eligible in Color"
                 ## Check to see if they are already in the datahub
                 $datahubCheckDataTable = New-Object System.Data.DataTable
                 $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.datahubURI);database=$($vault.datahubDatabase);trusted_connection=false;User ID=$($vault.datahubUsername);Password=$($vault.datahubPassword)"
@@ -87,10 +87,10 @@ Foreach ($user in $facstaffDataTable){
                 $sqlConnection.close()
                 $datahubCheckDataTable = @($datahubCheckDataTable)
                 If ($datahubCheckDataTable.length -ge 1){
-                    Write-Output "[INFO] $($ADuser) entered into Datahub"
+                    # Write-Output "[INFO] $($ADuser) entered into Datahub"
                 }
                 If ($datahubCheckDataTable.length -eq 0){
-                    Write-Output "[WARNING] $($ADUser) does not exist in Datahub"
+                    # Write-Output "[WARNING] $($ADUser) does not exist in Datahub"
                 }
             }
             ## Are not in Color
@@ -104,7 +104,7 @@ Foreach ($user in $facstaffDataTable){
                     external_id = $($ADUser)
                 }
                 $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorURI -Method POST -Body $Payload
-                Write-Output "[INFO] Re-checking eligibility"
+                # Write-Output "[INFO] Re-checking eligibility"
                 $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
                 If ($colorEligibilityCheck.results.id.length -ge 1) {
@@ -158,7 +158,7 @@ Foreach ($user in $studentDataTable){
         Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
     }
     if ($ADUser -ne $null){
-        Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
+        # Write-Output "[INFO] Successfully found $($user.id_num) in Active Directory. Email: $($ADUser)"
         ## Check to see if they have already been added to Datahub
         $datahubCheck = New-Object System.Data.DataTable
         $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.datahubURI);database=$($vault.datahubDatabase);trusted_connection=false;User ID=$($vault.datahubUsername);Password=$($vault.datahubPassword)"
@@ -173,16 +173,16 @@ Foreach ($user in $studentDataTable){
         $sqlConnection.close()
         $datahubCheck = @($datahubCheck)
         if ($datahubCheck.PSObject.BaseObject.id -ne $null){
-            Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
+            # Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
         }
         If ($datahubCheck.PSObject.BaseObject.id -eq $null){
             ## Check to see if they have already been added to color
-            Write-Output "[INFO] Checking to see if they are marked eligible in Color"
+            # Write-Output "[INFO] Checking to see if they are marked eligible in Color"
             $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
             $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
             ## Are already in Color
             If ($colorEligibilityCheck.results.id.length -ge 1) {
-                Write-Output "[INFO] $($ADUser) is marked eligible in Color"
+                # Write-Output "[INFO] $($ADUser) is marked eligible in Color"
                 ## Check to see if they are already in the datahub
                 $datahubCheckDataTable = New-Object System.Data.DataTable
                 $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.datahubURI);database=$($vault.datahubDatabase);trusted_connection=false;User ID=$($vault.datahubUsername);Password=$($vault.datahubPassword)"
@@ -195,10 +195,10 @@ Foreach ($user in $studentDataTable){
                 $sqlConnection.close()
                 $datahubCheckDataTable = @($datahubCheckDataTable)
                 If ($datahubCheckDataTable.length -ge 1){
-                    Write-Output "[INFO] $($ADuser) entered into Datahub"
+                    # Write-Output "[INFO] $($ADuser) entered into Datahub"
                 }
                 If ($datahubCheckDataTable.length -eq 0){
-                    Write-Output "[WARNING] $($ADUser) does not exist in Datahub"
+                    # Write-Output "[WARNING] $($ADUser) does not exist in Datahub"
                     $sqlCommand = New-Object System.Data.SqlClient.SqlCommand
                 }
             }
@@ -213,7 +213,7 @@ Foreach ($user in $studentDataTable){
                     external_id = $($ADUser)
                 }
                 $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method POST -Body $Payload
-                Write-Output "[INFO] Re-checking eligibility"
+                # Write-Output "[INFO] Re-checking eligibility"
                 $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
                 If ($colorEligibilityCheck.results.id.length -ge 1) {
