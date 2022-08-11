@@ -42,8 +42,9 @@ Write-Output "[INFO] Data gathered. Records: $($studentDataTable.count)"
 ## Handle staff first
 Write-Output "[INFO] Processing faculty and staff records"
 Foreach ($user in $facstaffDataTable[0..99]){
+    $ADUser = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
-    $ADUser = get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail
+    $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail).tolower()
         if ($ADUser -eq $null){
             Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
         }
@@ -85,6 +86,7 @@ Foreach ($user in $facstaffDataTable[0..99]){
                     external_id = $($ADUser)
                 }
                 $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorURI -Method POST -Body $Payload
+                Start-Sleep -Seconds 5
                 Write-Output "[INFO] Re-checking eligibility"
                 $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
@@ -132,8 +134,9 @@ Write-Output "[INFO] faculty and staff records complete"
 ## Now do students!
 Write-Output "[INFO] Processing student records"
 Foreach ($user in $studentDataTable[2]){
+    $ADUser = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
-    $ADUser = get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail
+    $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail).tolower()
         if ($ADUser -eq $null){
             Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
         }
