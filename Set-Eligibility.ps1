@@ -150,7 +150,7 @@ Write-Output "[INFO] faculty and staff records complete"
 
 ## Now do students!
 Write-Output "[INFO] Processing student records"
-Foreach ($user in $studentDataTable[2]){
+Foreach ($user in $studentDataTable){
     $ADUser = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail).tolower()
