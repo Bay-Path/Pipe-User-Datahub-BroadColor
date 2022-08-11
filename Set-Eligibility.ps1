@@ -1,4 +1,4 @@
-## Stage 1: Get Credentials stored in vault test
+## Stage 1: Get Credentials stored in vault
 $vaultHeaders = @{}
 $vaultHeaders.Add('Authorization','Bearer '+ $env:vaultToken)
 $vaultHeaders.Add('Content-Type', 'application/json')
@@ -13,6 +13,7 @@ $colorHeaders = @{
 }
 
 ## Stage 2: Get list of Employees from BPU-FACSTAFF Mailing List View
+Write-Output "[INFO] Gathering data from Datahub for faculty & staff members"
 $facstaffDataTable = New-Object System.Data.DataTable
 $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.jenzabarURI);database=$($vault.jenzabarDatabase);trusted_connection=false;User ID=$($vault.jenzabarUsername);Password=$($vault.jenzabarPassword)"
 $sqlQuery = "SELECT [ID_NUM] FROM Automation.dbo.BPM_EMAIL_FACSTAFF"
@@ -23,8 +24,9 @@ $sqlReader = $sqlCommand.ExecuteReader()
 $facstaffDataTable.Load($sqlReader)
 $sqlConnection.close()
 $facstaffDataTable = @($facstaffDataTable)
-
+Write-Output "[INFO] Data gathered. Records: $($facstaffDataTable.count)"
 ## Get list of Students from BPU-Students Mailing List View
+Write-Output "[INFO] Gathering data from Datahub for students"
 $studentDataTable = New-Object System.Data.DataTable
 $sqlConnection = New-Object Data.SQLClient.SQLConnection "Server=$($vault.jenzabarURI);database=$($vault.jenzabarDatabase);trusted_connection=false;User ID=$($vault.jenzabarUsername);Password=$($vault.jenzabarPassword)"
 $sqlQuery = "SELECT [ID_NUM] FROM Automation.dbo.BPM_EMAIL_STUDENTS_ALL"
@@ -35,9 +37,11 @@ $sqlReader = $sqlCommand.ExecuteReader()
 $studentDataTable.Load($sqlReader)
 $sqlConnection.close()
 $studentDataTable = @($studentDataTable)
+Write-Output "[INFO] Data gathered. Records: $($studentDataTable.count)"
 
 ## Handle staff first
-Foreach ($user in $facstaffDataTable[5]){
+Write-Output "[INFO] Processing faculty and staff records"
+Foreach ($user in $facstaffDataTable[6]){
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail
         if ($ADUser -eq $null){
@@ -123,9 +127,11 @@ Foreach ($user in $facstaffDataTable[5]){
             
         }
 }
+Write-Output "[INFO] faculty and staff records complete"
 
 ## Now do students!
-Foreach ($user in $studentDataTable[1]){
+Write-Output "[INFO] Processing student records"
+Foreach ($user in $studentDataTable[2]){
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail
         if ($ADUser -eq $null){
@@ -211,4 +217,4 @@ Foreach ($user in $studentDataTable[1]){
             
         }
 }
-
+Write-Output "[INFO] student records complete"
