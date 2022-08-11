@@ -86,7 +86,6 @@ Foreach ($user in $facstaffDataTable[0..99]){
                     external_id = $($ADUser)
                 }
                 $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorURI -Method POST -Body $Payload
-                Start-Sleep -Seconds 5
                 Write-Output "[INFO] Re-checking eligibility"
                 $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
