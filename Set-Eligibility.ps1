@@ -64,10 +64,10 @@ Foreach ($user in $facstaffDataTable){
         $datahubCheck.Load($sqlReader)
         $sqlConnection.close()
         $datahubCheck = @($datahubCheck)
-        if ($datahubCheck.unique_identifier.trim() -like $aduser){
+        if ($datahubCheck.PSObject.BaseObject.id -ne $null){
             Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
         }
-        If ($datahubCheck.unique_identifier.trim() -notlike $aduser){
+        If ($datahubCheck.PSObject.BaseObject.id -eq $null){
             ## Check to see if they have already been added to color
             Write-Output "[INFO] Checking to see if they are marked eligible in Color"
             $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
@@ -172,10 +172,10 @@ Foreach ($user in $studentDataTable[2]){
         $datahubCheck.Load($sqlReader)
         $sqlConnection.close()
         $datahubCheck = @($datahubCheck)
-        if ($datahubCheck.unique_identifier.trim() -like $aduser){
+        if ($datahubCheck.PSObject.BaseObject.id -ne $null){
             Write-Output "[INFO] Entry in datahub found for $($aduser), skipping..."
         }
-        If ($datahubCheck.unique_identifier.trim() -notlike $aduser){
+        If ($datahubCheck.PSObject.BaseObject.id -eq $null){
             ## Check to see if they have already been added to color
             Write-Output "[INFO] Checking to see if they are marked eligible in Color"
             $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
@@ -213,7 +213,7 @@ Foreach ($user in $studentDataTable[2]){
                 }
                 $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method POST -Body $Payload
                 Write-Output "[INFO] Re-checking eligibility"
-                $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
+                $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=mocartagena@baypath.edu"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
                 If ($colorEligibilityCheck.results.id.length -ge 1) {
                     Write-Output "[INFO] $($ADUser) is marked eligible in Color. Color ID# is $($colorEligibilityCheck.results.id)"
