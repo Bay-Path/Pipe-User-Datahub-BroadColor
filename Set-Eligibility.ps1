@@ -1,5 +1,5 @@
 ## Stage 1: Get Credentials stored in vault
-
+$env:vaultToken = 's.YK27Lm5JOFdP4VRwcr1iG1y3'
 $vaultHeaders = @{}
 $vaultHeaders.Add('Authorization','Bearer '+ $env:vaultToken)
 $vaultHeaders.Add('Content-Type', 'application/json')
@@ -38,7 +38,7 @@ $sqlConnection.close()
 $studentDataTable = @($studentDataTable)
 
 ## Handle staff first
-Foreach ($user in $facstaffDataTable[2]){
+Foreach ($user in $facstaffDataTable[5]){
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail
         if ($ADUser -eq $null){
@@ -81,7 +81,7 @@ Foreach ($user in $facstaffDataTable[2]){
                     population = 'Bay Path - Employees'
                     external_id = $($ADUser)
                 }
-                $colorEligibilityAdd = Invoke-RestMethod -Headers $Headers -Uri $Uri -Method POST -Body $Payload
+                $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorURI -Method POST -Body $Payload
                 Write-Output "[INFO] Re-checking eligibility"
                 $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
@@ -126,7 +126,7 @@ Foreach ($user in $facstaffDataTable[2]){
 }
 
 ## Now do students!
-Foreach ($user in $studentDataTable[0]){
+Foreach ($user in $studentDataTable[1]){
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail
         if ($ADUser -eq $null){
@@ -169,7 +169,7 @@ Foreach ($user in $studentDataTable[0]){
                     population = 'Bay Path - Students'
                     external_id = $($ADUser)
                 }
-                $colorEligibilityAdd = Invoke-RestMethod -Headers $Headers -Uri $Uri -Method POST -Body $Payload
+                $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method POST -Body $Payload
                 Write-Output "[INFO] Re-checking eligibility"
                 $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
