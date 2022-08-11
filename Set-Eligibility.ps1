@@ -1,4 +1,5 @@
 ## Stage 1: Get Credentials stored in vault
+$env:VaultToken = 's.YK27Lm5JOFdP4VRwcr1iG1y3'
 $vaultHeaders = @{}
 $vaultHeaders.Add('Authorization','Bearer '+ $env:vaultToken)
 $vaultHeaders.Add('Content-Type', 'application/json')
@@ -45,7 +46,7 @@ Foreach ($user in $facstaffDataTable){
     $ADUser = $null
     $datahubCheck = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
-    $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail).tolower()
+    $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select-Object -ExpandProperty mail).tolower()
     if ($ADUser -eq $null){
         Write-Output "[WARNING] unable to find $($user.id_num) in Active Directory"
     }
@@ -199,6 +200,7 @@ Foreach ($user in $studentDataTable){
                 }
                 If ($datahubCheckDataTable.length -eq 0){
                     Write-Output "[WARNING] $($ADUser) does not exist in Datahub"
+                    $sqlCommand = New-Object System.Data.SqlClient.SqlCommand
                 }
             }
             ## Are not in Color
@@ -213,7 +215,7 @@ Foreach ($user in $studentDataTable){
                 }
                 $colorEligibilityAdd = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method POST -Body $Payload
                 Write-Output "[INFO] Re-checking eligibility"
-                $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=mocartagena@baypath.edu"
+                $colorURI = "https://api.color.com/api/v1/external/eligibility/entries?unique_identifiers=$($ADUser)"
                 $colorEligibilityCheck = Invoke-RestMethod -Headers $colorHeaders -Uri $colorUri -Method GET
                 If ($colorEligibilityCheck.results.id.length -ge 1) {
                     Write-Output "[INFO] $($ADUser) is marked eligible in Color. Color ID# is $($colorEligibilityCheck.results.id)"
