@@ -1,3 +1,4 @@
+$env:VaultToken = 's.YK27Lm5JOFdP4VRwcr1iG1y3'
 ## Stage 1: Get Credentials stored in vault
 $vaultHeaders = @{}
 $vaultHeaders.Add('Authorization','Bearer '+ $env:vaultToken)
@@ -42,6 +43,7 @@ Write-Output "[INFO] Data gathered. Records: $($studentDataTable.count)"
 ## Handle staff first
 Write-Output "[INFO] Processing faculty and staff records"
 Foreach ($user in $facstaffDataTable){
+    Write-Output "Processing $($user.id_num)"
     $ADUser = $null
     $datahubCheck = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
@@ -151,6 +153,7 @@ Write-Output "[INFO] faculty and staff records complete"
 ## Now do students!
 Write-Output "[INFO] Processing student records"
 Foreach ($user in $studentDataTable){
+    Write-Output "Processing $($User.ID_NUM)"
     $ADUser = $null
     #Lookup user in Active Directory to make sure we have the latest email address for the user
     $ADUser = (get-aduser -ldapfilter "(employeeid=$($user.id_num))" -Properties mail | Select -ExpandProperty mail).tolower()
