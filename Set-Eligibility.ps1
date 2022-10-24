@@ -1,4 +1,3 @@
-$env:VaultToken = 's.YK27Lm5JOFdP4VRwcr1iG1y3'
 ## Stage 1: Get Credentials stored in vault
 $vaultHeaders = @{}
 $vaultHeaders.Add('Authorization','Bearer '+ $env:vaultToken)
